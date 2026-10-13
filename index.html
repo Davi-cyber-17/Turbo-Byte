@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#050912">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Turbo Byte</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body data-screen="menu">
+
+  <!-- Pista animada ao fundo dos menus -->
+  <canvas id="bg" width="1280" height="800" aria-hidden="true"></canvas>
+  <div class="shade" aria-hidden="true"></div>
+
+  <main id="app">
+
+    <!-- ============ MENU ============ -->
+    <section id="screen-menu" class="screen active">
+      <h1 class="logo">Turbo<br>Byte</h1>
+      <p class="tagline">Corrida para 2 a 8 pilotos. Jogue no computador, no celular ou no tablet, inclusive todos juntos no online.</p>
+      <div class="menu-btns">
+        <button id="btn-online" class="btn big">Modo Online</button>
+        <button id="btn-local" class="btn big alt">Modo Local</button>
+      </div>
+      <p class="note">Online: crie uma sala e passe o código ou o link para os amigos.<br>Local: no mesmo aparelho, com bots completando o grid.</p>
+    </section>
+
+    <!-- ============ MODO LOCAL ============ -->
+    <section id="screen-local" class="screen">
+      <div class="panel">
+        <h2>Modo Local</h2>
+        <div class="field">
+          <label for="loc-total">Total de carros</label>
+          <select id="loc-total">
+            <option>2</option><option>3</option><option selected>4</option><option>5</option>
+            <option>6</option><option>7</option><option>8</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="loc-humans">Pilotos humanos</label>
+          <select id="loc-humans">
+            <option>1</option><option selected>2</option><option>3</option><option>4</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="loc-laps">Voltas</label>
+          <select id="loc-laps">
+            <option>3</option><option selected>5</option><option>8</option><option>12</option>
+          </select>
+        </div>
+        <p class="note">Os carros que sobrarem são controlados por bots.</p>
+        <ul id="loc-keys" class="keys"></ul>
+        <p id="loc-touch-note" class="note" hidden>No celular, os botões de toque controlam apenas o P1.</p>
+        <div class="row">
+          <button id="loc-start" class="btn">Iniciar corrida</button>
+          <button class="btn ghost" data-back>Voltar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ MODO ONLINE ============ -->
+    <section id="screen-online" class="screen">
+      <div class="panel">
+        <h2>Modo Online</h2>
+        <div class="field">
+          <label for="on-name">Seu nome</label>
+          <input id="on-name" maxlength="10" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="Piloto">
+        </div>
+        <button id="btn-create" class="btn full">Criar sala</button>
+        <p class="divider">ou entre em uma sala</p>
+        <div class="row nowrap">
+          <input id="join-code" maxlength="5" autocomplete="off" autocapitalize="characters" autocorrect="off" spellcheck="false" placeholder="Código" class="code-input" aria-label="Código da sala">
+          <button id="btn-join" class="btn alt">Entrar</button>
+        </div>
+        <p id="on-status" class="note status" role="status"></p>
+        <p class="note">Funciona entre aparelhos diferentes: quem cria a sala no computador e quem entra pelo celular correm juntos.</p>
+        <div class="row">
+          <button class="btn ghost" data-back>Voltar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SALA (LOBBY) ============ -->
+    <section id="screen-lobby" class="screen">
+      <div class="panel">
+        <h2>Sala <span id="lobby-code" class="code"></span></h2>
+        <button id="btn-copy" class="btn small alt">Copiar link da sala</button>
+        <ul id="lobby-players" class="players"></ul>
+
+        <div id="lobby-host">
+          <div class="field">
+            <label for="lobby-laps">Voltas</label>
+            <select id="lobby-laps">
+              <option>3</option><option>5</option><option>8</option><option>12</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="lobby-fill">Completar com bots</label>
+            <select id="lobby-fill">
+              <option value="0">Sem bots</option>
+              <option value="4">Até 4 carros</option>
+              <option value="6">Até 6 carros</option>
+              <option value="8">Até 8 carros</option>
+            </select>
+          </div>
+          <button id="btn-start" class="btn full">Iniciar corrida</button>
+        </div>
+        <p id="lobby-guest" class="note"></p>
+
+        <div class="row">
+          <button id="btn-leave" class="btn ghost small">Sair da sala</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ JOGO ============ -->
+    <section id="screen-game" class="screen">
+      <div class="game-wrap">
+        <div class="stage">
+          <canvas id="game" width="1280" height="800"></canvas>
+          <button id="btn-full" class="btn small ghost full-btn" hidden aria-label="Tela cheia">Tela cheia</button>
+          <button id="btn-quit" class="btn small ghost quit">Sair</button>
+
+          <div id="results" class="results" hidden>
+            <div class="panel res-panel">
+              <h2>Resultado</h2>
+              <ol id="res-list" class="res-list"></ol>
+              <p id="res-note" class="note"></p>
+              <div class="row">
+                <button id="res-again" class="btn small">Jogar de novo</button>
+                <button id="res-lobby" class="btn small">Voltar à sala</button>
+                <button id="res-menu" class="btn small ghost">Sair</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="rank">
+          <h3>Classificação</h3>
+          <ol id="rank-list"></ol>
+          <p id="game-hint" class="note"></p>
+        </aside>
+      </div>
+
+      <p class="rotate-hint">Dica: gire o celular na horizontal para ver a pista maior.</p>
+
+      <div class="touch" aria-label="Controles de toque">
+        <div class="pad steer">
+          <button data-touch="left" aria-label="Virar à esquerda">&#9664;</button>
+          <button data-touch="right" aria-label="Virar à direita">&#9654;</button>
+        </div>
+        <div class="pad pedals">
+          <button data-touch="down" class="brake" aria-label="Freio">FREIO</button>
+          <button data-touch="up" class="gas" aria-label="Acelerar">ACEL.</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <!-- PeerJS: conexão direta entre navegadores (WebRTC) para o modo online -->
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
